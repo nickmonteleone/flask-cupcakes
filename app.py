@@ -141,3 +141,17 @@ def edit_cupcake(cupcake_id):
 
     return jsonify(cupcake=serialized)
 
+
+@app.delete('/api/cupcakes/<int:cupcake_id>')
+def delete_cupcake(cupcake_id):
+    """Delete data for a single cupcake and returns deleted cupcake id.
+
+    Returns JSON:
+       {deleted: 1}
+    """
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+    db.session.delete(cupcake)
+    db.session.commit()
+
+    return jsonify(deleted=cupcake.id)
