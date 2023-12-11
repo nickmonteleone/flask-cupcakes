@@ -28,14 +28,14 @@ def list_cupcakes():
             {
                 "flavor": "chocolate",
                 "id": 2,
-                "image_url": "https://www.bakedbyrachel.com/wp-content/uploads/2018/01/chocolatecupcakesccfrosting1_bakedbyrachel.jpg",
+                "image_url": "https://image_url_here",
                 "rating": 9,
                 "size": "small"
             }
         ]
     }
     '''
-
+    # TODO: add order (maybe alphabetical by flavor or by rating)
     cupcakes = Cupcake.query.all()
     serialized = [c.serialize() for c in cupcakes]
 
@@ -67,6 +67,14 @@ def get_cupcake(cupcake_id):
 def create_cupcake():
     """Create cupcake from posted JSON data and return it.
 
+    Input JSON:
+        {
+            "flavor": "hazelnut",
+            "image_url": "https://tinyurl.com/demo-cupcake", [optional]
+            "rating": 5,
+            "size": "large"
+        }
+
     Returns JSON:
         {
         "cupcake": {
@@ -79,11 +87,14 @@ def create_cupcake():
     }
     """
 
+    if request.json.get("image_url") == '':
+        request.json['image_url'] = None
+
     new_cupcake = Cupcake(
         flavor = request.json["flavor"],
         size = request.json["size"],
         rating = request.json["rating"],
-        image_url = request.json["image_url"]
+        image_url = request.json.get("image_url")
     )
 
     db.session.add(new_cupcake)
