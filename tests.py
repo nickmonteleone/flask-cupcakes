@@ -65,43 +65,43 @@ class CupcakeViewsTestCase(TestCase):
                 }]
             })
 
-    # def test_get_cupcake(self):
-    #     with app.test_client() as client:
-    #         url = f"/api/cupcakes/{self.cupcake_id}"
-    #         resp = client.get(url)
+    def test_get_cupcake(self):
+        with app.test_client() as client:
+            url = f"/api/cupcakes/{self.cupcake_id}"
+            resp = client.get(url)
 
-    #         self.assertEqual(resp.status_code, 200)
-    #         data = resp.json
-    #         self.assertEqual(data, {
-    #             "cupcake": {
-    #                 "id": self.cupcake_id,
-    #                 "flavor": "TestFlavor",
-    #                 "size": "TestSize",
-    #                 "rating": 5,
-    #                 "image_url": "http://test.com/cupcake.jpg"
-    #             }
-    #         })
+            self.assertEqual(resp.status_code, 200)
+            data = resp.json
+            self.assertEqual(data, {
+                "cupcake": {
+                    "id": self.cupcake_id,
+                    "flavor": "TestFlavor",
+                    "size": "TestSize",
+                    "rating": 5,
+                    "image_url": "http://test.com/cupcake.jpg"
+                }
+            })
 
-    # def test_create_cupcake(self):
-    #     with app.test_client() as client:
-    #         url = "/api/cupcakes"
-    #         resp = client.post(url, json=CUPCAKE_DATA_2)
+    def test_create_cupcake(self):
+        with app.test_client() as client:
+            url = "/api/cupcakes"
+            resp = client.post(url, json=CUPCAKE_DATA_2)
 
-    #         self.assertEqual(resp.status_code, 201)
+            self.assertEqual(resp.status_code, 201)
 
-    #         cupcake_id = resp.json['cupcake']['id']
+            cupcake_id = resp.json['cupcake']['id']
 
-    #         # don't know what ID we'll get, make sure it's an int
-    #         self.assertIsInstance(cupcake_id, int)
+            # don't know what ID we'll get, make sure it's an int
+            self.assertIsInstance(cupcake_id, int)
 
-    #         self.assertEqual(resp.json, {
-    #             "cupcake": {
-    #                 "id": cupcake_id,
-    #                 "flavor": "TestFlavor2",
-    #                 "size": "TestSize2",
-    #                 "rating": 10,
-    #                 "image_url": "http://test.com/cupcake2.jpg"
-    #             }
-    #         })
+            self.assertEqual(resp.json, {
+                "cupcake": {
+                    "id": cupcake_id,
+                    "flavor": "TestFlavor2",
+                    "size": "TestSize2",
+                    "rating": 10,
+                    "image_url": "http://test.com/cupcake2.jpg"
+                }
+            })
 
-    #         self.assertEqual(Cupcake.query.count(), 2)
+            self.assertEqual(Cupcake.query.count(), 2)
