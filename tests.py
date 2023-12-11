@@ -49,6 +49,7 @@ class CupcakeViewsTestCase(TestCase):
         db.session.rollback()
 
     def test_list_cupcakes(self):
+        '''Should return json with list of all cupcakes'''
         with app.test_client() as client:
             resp = client.get("/api/cupcakes")
 
@@ -66,6 +67,7 @@ class CupcakeViewsTestCase(TestCase):
             })
 
     def test_get_cupcake(self):
+        '''Should get info for a single cupcake'''
         with app.test_client() as client:
             url = f"/api/cupcakes/{self.cupcake_id}"
             resp = client.get(url)
@@ -83,6 +85,7 @@ class CupcakeViewsTestCase(TestCase):
             })
 
     def test_create_cupcake(self):
+        '''Should create a new cupcake'''
         with app.test_client() as client:
             url = "/api/cupcakes"
             resp = client.post(url, json=CUPCAKE_DATA_2)
@@ -107,6 +110,7 @@ class CupcakeViewsTestCase(TestCase):
             self.assertEqual(Cupcake.query.count(), 2)
 
     def test_edit_cupcake(self):
+        '''Should edit a cupcake and return cupcake info'''
         with app.test_client() as client:
             url = f"/api/cupcakes/{self.cupcake_id}"
             resp = client.patch(url, json={
@@ -116,6 +120,7 @@ class CupcakeViewsTestCase(TestCase):
                 "image_url": "http://edit.com/cupcake.jpg"
                 })
 
+        self.assertEqual(resp.status_code, 200)
         self.assertIsInstance(resp.json['cupcake']['id'], int)
         self.assertEqual(resp.json,
                          {"cupcake": {
@@ -127,6 +132,18 @@ class CupcakeViewsTestCase(TestCase):
                              }
                             }
                          )
-        self.assertEqual(resp.status_code, 200)
 
-    # def test_delete_cupcake(self):
+    def test_delete_cupcake(self):
+        '''Should delete cupcake'''
+
+        with app.test_client() as client:
+            url = f"/api/cupcakes/{self.cupcake_id}"
+            resp = client.delete(url)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.json,{"deleted": self.cupcake_id})
+
+            self.assertIsNone(
+                Cupcake.query.filter_by(id=self.cupcake_id).one_or_none())
+
+            self.assertEqual(Cupcake.query.count(), 0)

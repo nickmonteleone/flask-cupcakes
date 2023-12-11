@@ -35,8 +35,8 @@ def list_cupcakes():
         ]
     }
     '''
-    # TODO: add order (maybe alphabetical by flavor or by rating)
-    cupcakes = Cupcake.query.all()
+
+    cupcakes = Cupcake.query.order_by("flavor").all()
     serialized = [c.serialize() for c in cupcakes]
 
     return jsonify(cupcakes=serialized)
