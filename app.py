@@ -102,3 +102,42 @@ def create_cupcake():
 
     serialized = new_cupcake.serialize()
     return (jsonify(cupcake=serialized), 201)
+
+@app.patch('/api/cupcakes/<int:cupcake_id>')
+def edit_cupcake(cupcake_id):
+    """Edit data for a single cupcake and return cupcake info
+
+     Input JSON:
+        {
+            "flavor": "hazelnut", [optional]
+            "image_url": "https://tinyurl.com/demo-cupcake", [optional]
+            "rating": 5, [optional]
+            "size": "large" [optional]
+        }
+
+    Returns JSON:
+        {
+        "cupcake": {
+            "flavor": "cherry",
+            "id": 1,
+            "image_url": "https://tinyurl.com/demo-cupcake",
+            "rating": 5,
+            "size": "large"
+        }
+    }
+    """
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    # TODO: check if there is a way to loop through input fields
+    cupcake.flavor = request.json.get('flavor', cupcake.flavor)
+    cupcake.image_url = request.json.get('image_url', cupcake.image_url)
+    cupcake.rating = request.json.get('rating', cupcake.rating)
+    cupcake.size = request.json.get('size', cupcake.size)
+
+    db.session.commit()
+
+    serialized = cupcake.serialize()
+
+    return jsonify(cupcake=serialized)
+
