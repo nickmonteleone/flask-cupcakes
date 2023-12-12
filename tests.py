@@ -111,27 +111,32 @@ class CupcakeViewsTestCase(TestCase):
 
     def test_edit_cupcake(self):
         '''Should edit a cupcake and return cupcake info'''
+
         with app.test_client() as client:
             url = f"/api/cupcakes/{self.cupcake_id}"
-            resp = client.patch(url, json={
-                "flavor": "hazelnut",
-                "size": "small",
-                "rating": 4,
-                "image_url": "http://edit.com/cupcake.jpg"
-                })
+            resp = client.patch(url, json=CUPCAKE_DATA_2)
 
-        self.assertEqual(resp.status_code, 200)
-        self.assertIsInstance(resp.json['cupcake']['id'], int)
-        self.assertEqual(resp.json,
-                         {"cupcake": {
-                             "flavor": "hazelnut",
-                             "size": "small",
-                             "id": self.cupcake_id,
-                             "rating": 4,
-                             "image_url": "http://edit.com/cupcake.jpg"
-                             }
-                            }
-                         )
+            self.assertEqual(resp.status_code, 200)
+            self.assertIsInstance(resp.json['cupcake']['id'], int)
+
+            self.assertEqual(resp.json, {
+                "cupcake": {
+                    "id": self.cupcake_id,
+                    "flavor": CUPCAKE_DATA_2['flavor'],
+                    "size": CUPCAKE_DATA_2['size'],
+                    "rating": CUPCAKE_DATA_2['rating'],
+                    "image_url": CUPCAKE_DATA_2['image_url']
+                    }
+                }
+            )
+
+            self.assertEqual(Cupcake.query.count(), 1)
+
+            # return 404 for invalid id
+            url = "/api/cupcakes/999999999999"
+            resp = client.patch(url)
+
+            self.assertEqual(resp.status_code, 404)
 
     def test_delete_cupcake(self):
         '''Should delete cupcake'''
@@ -147,3 +152,10 @@ class CupcakeViewsTestCase(TestCase):
                 Cupcake.query.filter_by(id=self.cupcake_id).one_or_none())
 
             self.assertEqual(Cupcake.query.count(), 0)
+
+            # return 404 for invalid id
+            url = "/api/cupcakes/999999999999"
+            resp = client.patch(url)
+
+            self.assertEqual(resp.status_code, 404)
+

@@ -2,7 +2,7 @@
 
 import os
 from flask import Flask, request, jsonify
-from models import db, connect_db, Cupcake
+from models import db, connect_db, Cupcake, DEFAULT_IMAGE_URL
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
@@ -87,14 +87,17 @@ def create_cupcake():
     }
     """
 
-    if request.json.get("image_url") == '':
-        request.json['image_url'] = None
+    data = request.json
+
+    if data.get('image_url') is not None \
+        and len(data['image_url'].strip()) == 0:
+        data['image_url'] = None
 
     new_cupcake = Cupcake(
-        flavor = request.json["flavor"],
-        size = request.json["size"],
-        rating = request.json["rating"],
-        image_url = request.json.get("image_url")
+        flavor = data["flavor"],
+        size = data["size"],
+        rating = data["rating"],
+        image_url = data.get("image_url")
     )
 
     db.session.add(new_cupcake)
@@ -108,38 +111,28 @@ def edit_cupcake(cupcake_id):
     """Edit data for a single cupcake and return cupcake info
 
      Input JSON:
-        {
-            "flavor": "hazelnut", [optional]
-            "image_url": "https://tinyurl.com/demo-cupcake", [optional]
-            "rating": 5, [optional]
-            "size": "large" [optional]
-        }
+     {flavor, image_url, rating, size} [all fields optional]
 
     Returns JSON:
-        {
-        "cupcake": {
-            "flavor": "cherry",
-            "id": 1,
-            "image_url": "https://tinyurl.com/demo-cupcake",
-            "rating": 5,
-            "size": "large"
-        }
-    }
+    {cupcake: {flavor, id, image_url, rating, size}}
     """
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
+    data = request.json
 
-    # TODO: check if there is a way to loop through input fields
-    cupcake.flavor = request.json.get('flavor', cupcake.flavor)
-    cupcake.image_url = request.json.get('image_url', cupcake.image_url)
-    cupcake.rating = request.json.get('rating', cupcake.rating)
-    cupcake.size = request.json.get('size', cupcake.size)
+    if 'image_url' in data:
+        if data['image_url'] is None or len(data['image_url'].strip()) == 0:
+            cupcake.image_url = DEFAULT_IMAGE_URL
+    else:
+        cupcake.image_url = data.get('image_url', cupcake.image_url)
+
+    cupcake.flavor = data.get('flavor', cupcake.flavor)
+    cupcake.rating = data.get('rating', cupcake.rating)
+    cupcake.size = data.get('size', cupcake.size)
 
     db.session.commit()
 
-    serialized = cupcake.serialize()
-
-    return jsonify(cupcake=serialized)
+    return jsonify(cupcake=cupcake.serialize())
 
 
 @app.delete('/api/cupcakes/<int:cupcake_id>')
@@ -151,6 +144,7 @@ def delete_cupcake(cupcake_id):
     """
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
+
     db.session.delete(cupcake)
     db.session.commit()
 
