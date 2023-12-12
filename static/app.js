@@ -5,10 +5,12 @@ const BASE_URL = "http://localhost:5000";
 const $form = $('#create-cupcake');
 const $results = $('#cupcake-results');
 
-/**
- * Get inputs from form and submit post request to create cupcake
+
+/** Get inputs from form and submit post request to create cupcake
+ * Clear input values on form after cupcake creation.
  *
  * No inputs, use user input values from form
+ *
  * Return object with data for the added cupcake
  */
 
@@ -38,54 +40,56 @@ async function getCreateCupcakeData() {
   const cupcakeData = (await response.json()).cupcake;
   console.log('cupcake data for created object', cupcakeData);
 
-  return cupcakeData
+  for (let field of
+    ['#flavor-input', '#size-input', '#rating-input', '#image_url-input']){
+      $(field).val('');
+    }
+
+  return cupcakeData;
 }
 
-
-/** Conductor function to recieve form submit and show results */
+/** Conductor function to recieve form submit and create cupcake.
+ * Append cupcake to cupcake list on page after creation.
+ */
 
 async function handleSubmit(evt) {
   evt.preventDefault();
-  console.log('event for form submit:', evt)
+  console.log('event for form submit:', evt);
 
   const createdCupcakeData = await getCreateCupcakeData();
   console.log('create cupcake result:', createdCupcakeData);
   addCupcakesToList([createdCupcakeData]);
 }
 
-$form.on('submit', handleSubmit);
-console.log('Added submit event listener');
-
-/**
- * Get all cupcake data from API
- *
+/** Get all cupcake data from API.
+ * Return list of cupcake data objects [{flavor, image_url, rating, size} ...]
  */
 
-async function getCupcakesData(){
+async function getCupcakesData() {
   const response = await fetch(`${BASE_URL}/api/cupcakes`);
   const cupcakesData = (await response.json()).cupcakes;
 
   console.log("cupcakes data is:", cupcakesData);
-  // const cupcakes = cupcakesData.map(cupcake => {flavor, image_url, rating, size})
 
-  // console.log("cupcakes is:", cupcakes);
-
-  return cupcakesData
+  return cupcakesData;
 }
 
 
-// have getting a list of cupcakes - we want to list them
-// create a ul
-// create a for loop, and create html elements and append
+/**A render method to create HTML for each cupcake in a list of cupcake data
+ *
+ * Input: list of cupcake objects.
+ *  [{flavor, image_url, rating, size} ...]
+ *
+ * No return, add list objects to page.
+*/
 
-
-function addCupcakesToList(cupcakes){
+function addCupcakesToList(cupcakes) {
   const $list = $('<ul>');
 
-  for(const cupcake of cupcakes){
+  for (const cupcake of cupcakes) {
     const $cupcakeListItem = $(`<li> Flavor: ${cupcake.flavor},
     Rating: ${cupcake.rating}, Size: ${cupcake.size} </li>
-    <img src=${cupcake.image_url} class="img-thumbnail">`);
+    <img src=${cupcake.image_url} class="img-thumbnail w-25">`);
 
     $list.append($cupcakeListItem);
   }
@@ -93,15 +97,16 @@ function addCupcakesToList(cupcakes){
   $results.append($list);
 }
 
+/** Start the app upon page opening. Get list of cupcakes from API
+ * and add event listener to create cupcake form. */
 
-async function start(){
+async function start() {
+  console.log('starting app');
+
   const cupcakeData = await getCupcakesData();
   addCupcakesToList(cupcakeData);
+
+  $form.on('submit', handleSubmit);
 }
 
 start();
-// /**A render method to render HTML for an individual cupcake */
-// function generateCupcakeMarkup(cupcakes){
-//   retur
-// }
-
