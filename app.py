@@ -1,7 +1,7 @@
 """Flask app for Cupcakes"""
 
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from models import db, connect_db, Cupcake, DEFAULT_IMAGE_URL
 
 app = Flask(__name__)
@@ -11,6 +11,10 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 connect_db(app)
 
+@app.get('/')
+def index():
+
+    return render_template("index.html")
 
 @app.get('/api/cupcakes')
 def list_cupcakes():
@@ -149,3 +153,4 @@ def delete_cupcake(cupcake_id):
     db.session.commit()
 
     return jsonify(deleted=cupcake.id)
+
