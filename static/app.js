@@ -9,8 +9,6 @@ const $results = $('#cupcake-results');
 /** Get inputs from form and submit post request to create cupcake
  * Clear input values on form after cupcake creation.
  *
- * No inputs, use user input values from form
- *
  * Return object with data for the added cupcake
  */
 
@@ -40,6 +38,7 @@ async function getCreateCupcakeData() {
   const cupcakeData = (await response.json()).cupcake;
   console.log('cupcake data for created object', cupcakeData);
 
+  // TODO: check solution for way to clear all field values from form
   for (let field of
     ['#flavor-input', '#size-input', '#rating-input', '#image_url-input']){
       $(field).val('');
@@ -67,7 +66,8 @@ async function handleSubmit(evt) {
 
 async function getCupcakesData() {
   const response = await fetch(`${BASE_URL}/api/cupcakes`);
-  const cupcakesData = (await response.json()).cupcakes;
+  const responseJSON = await response.json();
+  const cupcakesData = responseJSON.cupcakes;
 
   console.log("cupcakes data is:", cupcakesData);
 
